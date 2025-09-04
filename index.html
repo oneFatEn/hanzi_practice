@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字笔画顺序动画演示</title>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5.0/dist/hanzi-writer.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        #charInput {
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 100px;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .primary-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background: #45a049;
+        }
+        
+        .secondary-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background: #1976D2;
+        }
+        
+        .danger-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .danger-btn:hover {
+            background: #d32f2f;
+        }
+        
+        .character-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            background: #fafafa;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #character-target {
+            width: 250px;
+            height: 250px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .preset-chars {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .preset-chars span {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .preset-chars span:hover {
+            background: #bbdefb;
+        }
+        
+        .info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .error {
+            background: #ffe6e6;
+            color: #d32f2f;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖌️ 汉字笔画顺序动画演示</h1>
+        
+        <div class="input-section">
+            <label for="charInput">输入汉字：</label>
+            <input type="text" id="charInput" placeholder="如：我" maxlength="1">
+            <button class="primary-btn" onclick="loadCharacter()">加载汉字</button>
+        </div>
+        
+        <div class="preset-chars">
+            <strong>快速选择：</strong>
+            <span onclick="loadPresetChar('好')">好</span>
+            <span onclick="loadPresetChar('好')">好</span>
+            <span onclick="loadPresetChar('学')">学</span>
+            <span onclick="loadPresetChar('习')">习</span>
+            <span onclick="loadPresetChar('天')">天</span>
+            <span onclick="loadPresetChar('天')">天</span>
+            <span onclick="loadPresetChar('向')">向</span>
+            <span onclick="loadPresetChar('上')">上</span>
+        </div>
+        
+        <div class="character-display">
+            <div id="character-target"></div>
+        </div>
+        
+        <div class="error" id="error-message"></div>
+        
+        <div class="controls">
+            <button class="secondary-btn" onclick="animateCharacter()">播放动画</button>
+            <button class="secondary-btn" onclick="loopAnimation()">循环播放</button>
+            <button class="danger-btn" onclick="stopAnimation()">停止动画</button>
+            <button class="primary-btn" onclick="showQuiz()">练习写字</button>
+        </div>
+        
+        <div class="info">
+            <strong>使用说明：</strong><br>
+            • 在输入框中输入一个汉字，或点击下方的预设汉字<br>
+            • 点击"加载汉字"显示字体轮廓<br>
+            • 点击"播放动画"观看笔画顺序动画<br>
+            • 点击"循环播放"重复播放动画<br>
+            • 点击"练习写字"进入交互练习模式<br>
+            • 支持简体和繁体汉字（约9000个常用字）
+        </div>
+    </div>
+
+    <script>
+        let writer = null;
+        let currentChar = '';
+        
+        // 加载汉字
+        function loadCharacter() {
+            const char = document.getElementById('charInput').value.trim();
+            if (!char) {
+                showError('请输入一个汉字');
+                return;
+            }
+            
+            if (char.length !== 1) {
+                showError('请只输入一个汉字');
+                return;
+            }
+            
+            loadChar(char);
+        }
+        
+        // 加载预设汉字
+        function loadPresetChar(char) {
+            document.getElementById('charInput').value = char;
+            loadChar(char);
+        }
+        
+        // 实际加载汉字的函数
+        function loadChar(char) {
+            hideError();
+            currentChar = char;
+            
+            // 清除之前的内容
+            const target = document.getElementById('character-target');
+            target.innerHTML = '';
+            
+            try {
+                writer = HanziWriter.create('character-target', char, {
+                    width: 250,
+                    height: 250,
+                    padding: 10,
+                    strokeColor: '#555',
+                    strokeAnimationSpeed: 1,
+                    delayBetweenStrokes: 300,
+                    showOutline: true,
+                    showHintAfterMisses: 1,
+                    showCharacter: true
+                });
+                
+                console.log('汉字加载成功:', char);
+            } catch (error) {
+                showError('加载汉字失败，可能不支持这个字：' + char);
+                console.error('加载错误:', error);
+            }
+        }
+        
+        // 播放动画
+        function animateCharacter() {
+            if (!writer) {
+                showError('请先加载一个汉字');
+                return;
+            }
+            
+            writer.animateCharacter({
+                onComplete: function() {
+                    console.log('动画播放完成');
+                }
+            });
+        }
+        
+        // 循环播放
+        function loopAnimation() {
+            if (!writer) {
+                showError('请先加载一个汉字');
+                return;
+            }
+            
+            writer.loopCharacterAnimation({
+                delayBetweenLoops: 1000
+            });
+        }
+        
+        // 停止动画
+        function stopAnimation() {
+            if (!writer) {
+                return;
+            }
+            
+            writer.cancelAnimation();
+            writer.hideCharacter();
+        }
+        
+        // 练习模式
+        function showQuiz() {
+            if (!writer) {
+                showError('请先加载一个汉字');
+                return;
+            }
+            
+            writer.quiz({
+                onCorrectStroke: function(data) {
+                    console.log('笔画正确:', data);
+                },
+                onComplete: function(data) {
+                    alert('太棒了！你已经完成了"' + currentChar + '"字的书写练习！');
+                    console.log('练习完成:', data);
+                }
+            });
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // 隐藏错误信息
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        // 回车键加载汉字
+        document.getElementById('charInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadCharacter();
+            }
+        });
+        
+        // 检查HanziWriter是否加载完成
+        function waitForHanziWriter(callback) {
+            if (typeof HanziWriter !== 'undefined') {
+                alert('HanziWriter CDN加载完成！');
+                callback();
+            } else {
+                setTimeout(() => waitForHanziWriter(callback), 100);
+            }
+        }
+        
+        // 页面加载完成后自动加载一个示例汉字
+        window.addEventListener('load', function() {
+            waitForHanziWriter(() => {
+                loadChar('我');
+            });
+        });
+    </script>
+</body>
+</html>
