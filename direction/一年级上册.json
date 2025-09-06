@@ -1,0 +1,41 @@
+{
+  "gradeName": "一年级上册",
+  "units": [
+    {
+      "unitName": "第一单元",
+      "unitDescription": "基础汉字",
+      "lessons": [
+        {
+          "lessonName": "第1课",
+          "lessonTitle": "数字汉字",
+          "characters": ["一", "二", "三"],
+          "description": "学习基础数字汉字的书写"
+        },
+        {
+          "lessonName": "第2课",
+          "lessonTitle": "方向汉字",
+          "characters": ["上", "下", "左"],
+          "description": "学习表示方向的汉字"
+        }
+      ]
+    },
+    {
+      "unitName": "第二单元",
+      "unitDescription": "常用汉字",
+      "lessons": [
+        {
+          "lessonName": "第3课",
+          "lessonTitle": "数字续篇",
+          "characters": ["四", "五", "六"],
+          "description": "继续学习数字汉字"
+        },
+        {
+          "lessonName": "第4课",
+          "lessonTitle": "人物称谓",
+          "characters": ["人", "大", "小"],
+          "description": "学习人物相关汉字"
+        }
+      ]
+    }
+  ]
+}
