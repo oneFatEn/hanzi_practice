@@ -8,10 +8,76 @@
     <style>
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        .unit {
+            margin-bottom: 15px;
+        }
+        
+        .unit-title {
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            padding: 8px;
+            background: #f8f8f8;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .unit-title:hover {
+            background: #e8f5e8;
+        }
+        
+        .lessons {
+            padding-left: 15px;
+            display: none;
+        }
+        
+        .lessons.expanded {
+            display: block;
+        }
+        
+        .lesson {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-bottom: 3px;
+            color: #666;
+        }
+        
+        .lesson:hover {
+            background: #bbdefb;
+            color: #333;
+        }
+        
+        .lesson.active {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
         }
         
         .container {
@@ -19,6 +85,8 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         h1 {
@@ -57,6 +125,11 @@
             background: #4CAF50;
             color: white;
         }
+
+        .try-btn {
+            background: red;
+            color: white;
+        }
         
         .primary-btn:hover {
             background: #45a049;
@@ -80,20 +153,84 @@
             background: #d32f2f;
         }
         
+        .lesson-characters {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .lesson-characters h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .character-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .character-item {
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        
+        .character-item:hover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .character-item.selected {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+        
         .character-display {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 300px;
+            min-height: 350px;
             background: #fafafa;
-            border: 2px dashed #ddd;
+            border: 2px solid #ddd;
             border-radius: 10px;
             margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .grid-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+        
+        .grid-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .grid-lines svg {
+            width: 100%;
+            height: 100%;
         }
         
         #character-target {
-            width: 250px;
-            height: 250px;
+            width: 300px;
+            height: 300px;
+            position: relative;
+            z-index: 2;
         }
         
         .controls {
@@ -143,7 +280,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="sidebar">
+        <h3>📚 课程目录</h3>
+        <div id="course-menu">
+            <!-- 课程菜单将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
         <h1>🖌️ 汉字笔画顺序动画演示</h1>
         
         <div class="input-section">
@@ -152,45 +297,232 @@
             <button class="primary-btn" onclick="loadCharacter()">加载汉字</button>
         </div>
         
-        <div class="preset-chars">
-            <strong>快速选择：</strong>
-            <span onclick="loadPresetChar('好')">好</span>
-            <span onclick="loadPresetChar('好')">好</span>
-            <span onclick="loadPresetChar('学')">学</span>
-            <span onclick="loadPresetChar('习')">习</span>
-            <span onclick="loadPresetChar('天')">天</span>
-            <span onclick="loadPresetChar('天')">天</span>
-            <span onclick="loadPresetChar('向')">向</span>
-            <span onclick="loadPresetChar('上')">上</span>
+        <div class="lesson-characters" id="lesson-characters">
+            <h4>本课学习字符：</h4>
+            <div class="character-list" id="character-list">
+                <!-- 课程字符将通过JavaScript动态生成 -->
+            </div>
         </div>
         
         <div class="character-display">
-            <div id="character-target"></div>
+            <div class="grid-container">
+                <div class="grid-lines">
+                    <svg>
+                        <!-- 外边框 -->
+                        <rect x="0" y="0" width="300" height="300" fill="none" stroke="#333" stroke-width="2"/>
+                        <!-- 中心十字线 -->
+                        <line x1="150" y1="0" x2="150" y2="300" stroke="#666" stroke-width="1" stroke-dasharray="5,5"/>
+                        <line x1="0" y1="150" x2="300" y2="150" stroke="#666" stroke-width="1" stroke-dasharray="5,5"/>
+                        <!-- 对角线 -->
+                        <line x1="0" y1="0" x2="300" y2="300" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                        <line x1="300" y1="0" x2="0" y2="300" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                    </svg>
+                </div>
+                <div id="character-target"></div>
+            </div>
         </div>
         
         <div class="error" id="error-message"></div>
         
         <div class="controls">
-            <button class="secondary-btn" onclick="animateCharacter()">播放动画</button>
-            <button class="secondary-btn" onclick="loopAnimation()">循环播放</button>
-            <button class="danger-btn" onclick="stopAnimation()">停止动画</button>
-            <button class="primary-btn" onclick="showQuiz()">练习写字</button>
+            <button class="primary-btn" onclick="startPractice()">自己试试</button>
+            <button class="try-btn" onclick="tryMode()">挑战一下</button>
         </div>
         
         <div class="info">
             <strong>使用说明：</strong><br>
-            • 在输入框中输入一个汉字，或点击下方的预设汉字<br>
-            • 点击"加载汉字"显示字体轮廓<br>
-            • 点击"播放动画"观看笔画顺序动画<br>
-            • 点击"循环播放"重复播放动画<br>
-            • 点击"练习写字"进入交互练习模式<br>
+            • 在左侧课程目录中选择课时，学习该课的字符<br>
+            • 点击课时显示的字符，在米字格中观看笔画顺序动画<br>
+            • 点击"自己试试"隐藏字形，自己按笔画顺序写字<br>
+            • 也可以在输入框中输入单个汉字练习<br>
             • 支持简体和繁体汉字（约9000个常用字）
+        </div>
         </div>
     </div>
 
     <script>
         let writer = null;
         let currentChar = '';
+        let currentLesson = null;
+        let isPracticeMode = false;
+        let courseData = {};
+        let isTryMode = false;
+
+        // 初始化课程数据
+        async function initializeCourseData() {
+            try {
+                courseData = {};
+                // 从JSON文件加载课程数据
+                const jsonFiles = ['一年级上册.json', '一年级下册.json', '二年级上册.json'];
+                
+                for (const file of jsonFiles) {
+                    try {
+                        const response = await fetch(`./direction/${file}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const gradeData = {};
+                            
+                            // 转换JSON结构为适合菜单渲染的格式
+                            data.units.forEach(unit => {
+                                const unitLessons = {};
+                                unit.lessons.forEach(lesson => {
+                                    unitLessons[lesson.lessonName + (lesson.lessonTitle ? ` - ${lesson.lessonTitle}` : '')] = lesson.characters;
+                                });
+                                gradeData[unit.unitName] = unitLessons;
+                            });
+                            
+                            courseData[data.gradeName] = gradeData;
+                        } else {
+                            console.warn(`无法加载课程文件: ${file}`);
+                        }
+                    } catch (error) {
+                        console.warn(`加载课程文件出错 ${file}:`, error);
+                    }
+                }
+                
+                // 如果没有成功加载任何数据，使用默认数据
+                if (Object.keys(courseData).length === 0) {
+                    courseData = {
+                        '一年级上册': {
+                            '第一单元': {
+                                '第1课': ['一', '二', '三']
+                            },
+                            '第二单元': {
+                                '第2课': ['四', '五', '六']
+                            }
+                        },
+                        '一年级下册': {
+                            '第三单元': {
+                                '第3课': ['七', '八', '九']
+                            }
+                        }
+                    };
+                }
+                
+            } catch (error) {
+                console.error('初始化课程数据失败:', error);
+                // 使用默认数据作为后备
+                courseData = {
+                    '一年级上册': {
+                        '第一单元': {
+                            '第1课': ['一', '二', '三']
+                        }
+                    }
+                };
+            }
+            
+            renderCourseMenu();
+        }
+        
+        // 渲染课程菜单
+        function renderCourseMenu() {
+            const menuContainer = document.getElementById('course-menu');
+            menuContainer.innerHTML = '';
+            
+            for (const [grade, units] of Object.entries(courseData)) {
+                const gradeDiv = document.createElement('div');
+                gradeDiv.className = 'unit';
+                
+                const gradeTitle = document.createElement('div');
+                gradeTitle.className = 'unit-title';
+                gradeTitle.textContent = grade;
+                gradeTitle.onclick = () => toggleUnit(gradeTitle.nextElementSibling);
+                
+                const lessonsDiv = document.createElement('div');
+                lessonsDiv.className = 'lessons';
+                
+                for (const [unit, lessons] of Object.entries(units)) {
+                    const unitDiv = document.createElement('div');
+                    unitDiv.className = 'unit';
+                    
+                    const unitTitle = document.createElement('div');
+                    unitTitle.className = 'unit-title';
+                    unitTitle.textContent = unit;
+                    unitTitle.style.fontSize = '14px';
+                    unitTitle.onclick = () => toggleUnit(unitTitle.nextElementSibling);
+                    
+                    const unitLessons = document.createElement('div');
+                    unitLessons.className = 'lessons';
+                    
+                    for (const [lesson, chars] of Object.entries(lessons)) {
+                        const lessonDiv = document.createElement('div');
+                        lessonDiv.className = 'lesson';
+                        lessonDiv.textContent = lesson;
+                        lessonDiv.onclick = () => selectLesson(lesson, chars);
+                        unitLessons.appendChild(lessonDiv);
+                    }
+                    
+                    unitDiv.appendChild(unitTitle);
+                    unitDiv.appendChild(unitLessons);
+                    lessonsDiv.appendChild(unitDiv);
+                }
+                
+                gradeDiv.appendChild(gradeTitle);
+                gradeDiv.appendChild(lessonsDiv);
+                menuContainer.appendChild(gradeDiv);
+            }
+        }
+        
+        // 切换单元展开/收起
+        function toggleUnit(lessonsDiv) {
+            lessonsDiv.classList.toggle('expanded');
+        }
+        
+        // 选择课时
+        function selectLesson(lessonName, characters) {
+            currentLesson = { name: lessonName, characters: characters };
+            
+            // 更新选中状态
+            document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.lessons').forEach(lessonDiv => {
+                if (!lessonDiv.contains(event.target)) {
+                    lessonDiv.classList.remove('expanded');
+                }
+            });
+            
+            // 显示课程字符
+            showLessonCharacters(characters);
+            
+            // 清空当前字符显示
+            clearCharacterDisplay();
+        }
+        
+        // 显示课程字符
+        function showLessonCharacters(characters) {
+            const lessonDiv = document.getElementById('lesson-characters');
+            const charList = document.getElementById('character-list');
+            
+            lessonDiv.style.display = 'block';
+            charList.innerHTML = '';
+            
+            characters.forEach(char => {
+                const charSpan = document.createElement('span');
+                charSpan.className = 'character-item';
+                charSpan.textContent = char;
+                charSpan.onclick = () => selectCharacter(char, charSpan);
+                charList.appendChild(charSpan);
+            });
+        }
+        
+        // 选择字符
+        function selectCharacter(char, element) {
+            document.querySelectorAll('.character-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            loadChar(char);
+        }
+        
+        // 清空字符显示
+        function clearCharacterDisplay() {
+            const target = document.getElementById('character-target');
+            target.innerHTML = '';
+            writer = null;
+            currentChar = '';
+            isPracticeMode = false;
+        }
         
         // 加载汉字
         function loadCharacter() {
@@ -208,16 +540,11 @@
             loadChar(char);
         }
         
-        // 加载预设汉字
-        function loadPresetChar(char) {
-            document.getElementById('charInput').value = char;
-            loadChar(char);
-        }
-        
         // 实际加载汉字的函数
-        function loadChar(char) {
+        function loadChar(char, isShowOutline = true) {
             hideError();
             currentChar = char;
+            isPracticeMode = false;
             
             // 清除之前的内容
             const target = document.getElementById('character-target');
@@ -225,16 +552,20 @@
             
             try {
                 writer = HanziWriter.create('character-target', char, {
-                    width: 250,
-                    height: 250,
-                    padding: 10,
+                    width: 300,
+                    height: 300,
+                    padding: 20,
                     strokeColor: '#555',
                     strokeAnimationSpeed: 1,
                     delayBetweenStrokes: 300,
-                    showOutline: true,
+                    showOutline: isShowOutline,
                     showHintAfterMisses: 1,
-                    showCharacter: true
+                    showCharacter: false,
+                    radicalColor: '#168F16'
                 });
+                
+                // 自动播放一遍动画
+                writer.animateCharacter();
                 
                 console.log('汉字加载成功:', char);
             } catch (error) {
@@ -242,57 +573,66 @@
                 console.error('加载错误:', error);
             }
         }
-        
-        // 播放动画
-        function animateCharacter() {
+
+        // 挑战模式
+        function tryMode() {
             if (!writer) {
-                showError('请先加载一个汉字');
+                showError('请先选择一个字符');
                 return;
             }
-            
-            writer.animateCharacter({
-                onComplete: function() {
-                    console.log('动画播放完成');
-                }
-            });
-        }
-        
-        // 循环播放
-        function loopAnimation() {
-            if (!writer) {
-                showError('请先加载一个汉字');
+            if (isTryMode) {
+                showError('已经在挑战模式中');
                 return;
             }
-            
-            writer.loopCharacterAnimation({
-                delayBetweenLoops: 1000
-            });
-        }
-        
-        // 停止动画
-        function stopAnimation() {
-            if (!writer) {
-                return;
-            }
-            
-            writer.cancelAnimation();
-            writer.hideCharacter();
-        }
-        
-        // 练习模式
-        function showQuiz() {
-            if (!writer) {
-                showError('请先加载一个汉字');
-                return;
-            }
+            isTryMode = true;
+            isPracticeMode = false;
+            // 给writer增加一个属性
+
+            loadChar(currentChar, false);
             
             writer.quiz({
                 onCorrectStroke: function(data) {
                     console.log('笔画正确:', data);
                 },
                 onComplete: function(data) {
-                    alert('太棒了！你已经完成了"' + currentChar + '"字的书写练习！');
+
+                    console.log('挑战完成:', data);
+                    isTryMode = false;
+                    // 挑战完成后重新显示字符
+                    writer.showCharacter();
+                    alert('太棒了！你已经完成了"' + currentChar + '"字的书写挑战！');
+                    writer.showOutline = true;
+                }
+            });
+        }
+        
+        // 开始练习模式
+        function startPractice() {
+            if (!writer) {
+                showError('请先选择一个字符');
+                return;
+            }
+            
+            if (isPracticeMode) {
+                showError('已经在练习模式中');
+                return;
+            }
+            loadChar(currentChar);
+            isPracticeMode = true;
+            isTryMode = false;
+            writer.hideCharacter();
+            
+            writer.quiz({
+                onCorrectStroke: function(data) {
+                    console.log('笔画正确:', data);
+                },
+                onComplete: function(data) {
+                    
                     console.log('练习完成:', data);
+                    isPracticeMode = false;
+                    // 练习完成后重新显示字符
+                    writer.showCharacter();
+                    alert('太棒了！你已经完成了"' + currentChar + '"字的书写练习！');
                 }
             });
         }
@@ -319,17 +659,17 @@
         // 检查HanziWriter是否加载完成
         function waitForHanziWriter(callback) {
             if (typeof HanziWriter !== 'undefined') {
-                alert('HanziWriter CDN加载完成！');
+                console.log('HanziWriter CDN加载完成！');
                 callback();
             } else {
                 setTimeout(() => waitForHanziWriter(callback), 100);
             }
         }
         
-        // 页面加载完成后自动加载一个示例汉字
+        // 页面加载完成后初始化课程数据
         window.addEventListener('load', function() {
             waitForHanziWriter(() => {
-                loadChar('我');
+                initializeCourseData();
             });
         });
     </script>
