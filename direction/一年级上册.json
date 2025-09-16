@@ -1,0 +1,71 @@
+{
+  "gradeName": "一年级上册",
+  "units": [
+    {
+      "unitName": "第一单元",
+      "unitDescription": "基础汉字",
+      "lessons": [
+        {
+          "lessonName": "第1课",
+          "lessonTitle": "第2课",
+          "characters": ["一", "二", "三", "上"],
+          "description": "学习基础数字汉字的书写"
+        },
+        {
+          "lessonName": "第2课",
+          "lessonTitle": "第2课",
+          "characters": ["口", "耳", "目", "手"],
+          "description": "学习表示方向的汉字"
+        },
+        {
+          "lessonName": "第3课",
+          "lessonTitle": "第3课",
+          "characters": ["日", "火", "田", "禾"],
+          "description": "学习表示方向的汉字"
+        },
+        {
+          "lessonName": "第4课",
+          "lessonTitle": "语文园地1",
+          "characters": ["六", "七", "八", "十"],
+          "description": "学习表示方向的汉字"
+        }
+      ]
+    },
+    {
+      "unitName": "第二单元",
+      "unitDescription": "常用汉字",
+      "lessons": [
+        {
+          "lessonName": "第1课",
+          "lessonTitle": "第1课",
+          "characters": ["九", "王"],
+          "description": "继续学习数字汉字"
+        }
+      ]
+    }, 
+    {
+      "unitName": "第三单元",
+      "unitDescription": "常用汉字",
+      "lessons": [
+        {
+          "lessonName": "第1课",
+          "lessonTitle": "第1课",
+          "characters": ["九", "王"],
+          "description": "继续学习数字汉字"
+        }
+      ]
+    }, 
+    {
+      "unitName": "第二单元",
+      "unitDescription": "常用汉字",
+      "lessons": [
+        {
+          "lessonName": "第1课",
+          "lessonTitle": "第1课",
+          "characters": ["九", "王"],
+          "description": "继续学习数字汉字"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "gradeName": "二年级上册",
+  "units": [
+    {
+      "unitName": "第五单元",
+      "unitDescription": "复杂汉字",
+      "lessons": [
+        {
+          "lessonName": "第8课",
+          "lessonTitle": "动作汉字",
+          "characters": ["走", "跑", "跳"],
+          "description": "学习表示动作的汉字"
+        },
+        {
+          "lessonName": "第9课",
+          "lessonTitle": "颜色汉字",
+          "characters": ["红", "黄", "蓝"],
+          "description": "学习颜色相关汉字"
+        }
+      ]
+    }
+  ]
+}
